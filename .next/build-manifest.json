@@ -2,9 +2,7 @@
   "polyfillFiles": [
     "static/chunks/polyfills.js"
   ],
-  "devFiles": [
-    "static/chunks/react-refresh.js"
-  ],
+  "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
     "static/development/_buildManifest.js",
@@ -12,7 +10,10 @@
   ],
   "rootMainFiles": [],
   "pages": {
-    "/": [
+    "/_app": []
+  },
+  "ampFirstPages": []
+}"/": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/index.js"
