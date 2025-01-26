@@ -72,7 +72,7 @@ export default function Login() {
               <Bot className="w-12 h-12 text-purple-400 -ml-4" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-8 leading-[1.4] pb-2">
-              Nick's AI Agents
+              Nick&apos;s AI Agents
             </h1>
             <h2 className="text-2xl md:text-3xl font-semibold text-white mb-8 leading-relaxed">
               Powered Learning Platform
