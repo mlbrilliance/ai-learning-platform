@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useEffect, DragEvent } from 'react';
-import { FileText, Upload, Key, AlertCircle } from 'lucide-react';
+import { FileText, Upload, Key, AlertCircle, LogOut } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import {
   Dialog,
@@ -8,14 +10,58 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog';
+import { supabase } from '../lib/supabase';
+import { useRouter } from 'next/router';
 
 export default function Home() {
+  const router = useRouter();
   const [apiKey, setApiKey] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check authentication status
+    const checkUser = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('Home: session check:', { session, error });
+        
+        if (error) throw error;
+        
+        if (!session) {
+          console.log('Home: no session, redirecting to login');
+          router.push('/auth/login');
+          return;
+        }
+        
+        setUser(session.user);
+      } catch (error) {
+        console.error('Home: auth error:', error);
+        router.push('/auth/login');
+      }
+    };
+
+    checkUser();
+
+    // Subscribe to auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Home: auth state changed:', { event, session });
+      if (event === 'SIGNED_OUT') {
+        router.push('/auth/login');
+      } else if (session) {
+        setUser(session.user);
+      }
+    });
+
+    return () => {
+      console.log('Home: cleanup auth listener');
+      authListener?.subscription.unsubscribe();
+    };
+  }, [router]);
 
   // Clear sensitive data when component unmounts or window closes
   useEffect(() => {
@@ -35,6 +81,19 @@ export default function Home() {
     };
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -47,7 +106,7 @@ export default function Home() {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -58,26 +117,29 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!apiKey || !file) {
-      return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile?.type === 'application/pdf') {
+      setFile(selectedFile);
     }
+  };
 
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('apiKey', apiKey);
+  const handleSubmit = async () => {
+    if (!file) return;
 
     try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('apiKey', apiKey);
+
       const response = await fetch('/api/process', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process document');
+        throw new Error('Processing failed');
       }
 
       const data = await response.json();
@@ -87,127 +149,161 @@ export default function Home() {
       console.error('Error:', error);
     } finally {
       setLoading(false);
-      setApiKey('');
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Document Processing Pipeline
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Transform your PDFs into vector embeddings using state-of-the-art AI
-            </p>
-          </div>
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200">
-                  <Key className="w-4 h-4 mr-2" />
-                  HuggingFace API Key
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      {/* User info and sign out */}
+      <div className="max-w-4xl mx-auto mb-8 flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+        <div className="flex items-center gap-4">
+          {user?.user_metadata?.avatar_url && (
+            <img
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
+          )}
+          <div>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {user?.user_metadata?.full_name || user?.email}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+          </div>
+        </div>
+        <Button
+          onClick={handleSignOut}
+          variant="outline"
+          className="flex items-center gap-2"
+          disabled={loading}
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
+      </div>
+
+      <div className="max-w-4xl mx-auto">
+        <div
+          className={`p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl ${
+            isDragging ? 'border-2 border-dashed border-blue-500' : ''
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="space-y-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Document Processing Pipeline
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
+                Upload a PDF document to process and analyze its content
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Hugging Face API Key
                 </label>
                 <div className="relative">
+                  <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="password"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full pl-10 pr-4 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                     placeholder="Enter your API key"
-                    autoComplete="off"
                   />
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Your API key is never stored and is only used for the current session
-                </p>
               </div>
 
-              <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-200">
-                  <FileText className="w-4 h-4 mr-2" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PDF Document
                 </label>
                 <div className="relative">
                   <input
                     type="file"
-                    accept=".pdf"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    accept="application/pdf"
+                    onChange={handleFileChange}
                     className="hidden"
                     id="file-upload"
                   />
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`relative cursor-pointer ${
-                      isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''
-                    }`}
+                  <label
+                    htmlFor="file-upload"
+                    className="flex items-center justify-center w-full p-6 border-2 border-dashed rounded-md cursor-pointer hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500"
                   >
-                    <label
-                      htmlFor="file-upload"
-                      className={`flex items-center justify-center w-full px-4 py-6 border-2 border-dashed rounded-md transition-colors duration-200 ${
-                        isDragging
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-300 hover:border-blue-500 dark:border-gray-600 dark:hover:border-blue-400'
-                      }`}
-                    >
-                      <div className="space-y-1 text-center">
-                        <Upload className={`mx-auto h-12 w-12 ${
-                          isDragging ? 'text-blue-500' : 'text-gray-400'
-                        }`} />
-                        <div className="flex flex-col items-center text-sm text-gray-600 dark:text-gray-300">
-                          <span className="font-medium">
-                            {file ? file.name : 'Drop your PDF here'}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            or click to browse
-                          </span>
-                        </div>
+                    <div className="space-y-1 text-center">
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        <span className="font-medium">Click to upload</span> or drag and drop
                       </div>
-                    </label>
-                  </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">PDF up to 10MB</p>
+                    </div>
+                  </label>
+                  {file && (
+                    <div className="mt-2 flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <FileText className="mr-2 h-4 w-4" />
+                      {file.name}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <Button
-                type="submit"
-                disabled={!apiKey || !file || loading}
+                onClick={handleSubmit}
                 className="w-full"
+                disabled={!apiKey || !file || loading}
               >
-                {loading ? 'Processing...' : 'Process Document'}
+                {loading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  'Process Document'
+                )}
               </Button>
-            </form>
+            </div>
           </div>
         </div>
 
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="sm:max-w-[800px]">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Processing Results</DialogTitle>
+              <DialogTitle>Document Content</DialogTitle>
               <DialogDescription>
-                Document has been successfully processed and vectorized
+                Your document has been processed and split into the following sections:
               </DialogDescription>
             </DialogHeader>
-            
             <div className="mt-4 space-y-4">
               {result?.chunks?.map((chunk: any, index: number) => (
-                <div
+                <div 
                   key={index}
-                  className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2"
+                  className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                 >
-                  <h3 className="font-semibold text-lg">Chunk {index + 1}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {chunk.content.substring(0, 200)}...
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span>Vector dimension: {chunk.vector.length}</span>
-                    <span>Page: {chunk.metadata.loc.pageNumber}</span>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Section {index + 1}
+                    </span>
+                    {chunk.metadata && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Page {chunk.metadata.loc?.pageNumber || 'N/A'}
+                      </span>
+                    )}
                   </div>
+                  <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                    {chunk.content}
+                  </p>
                 </div>
               ))}
             </div>
