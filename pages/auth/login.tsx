@@ -34,27 +34,15 @@ export default function Login() {
     try {
       logger.info('Starting Google sign-in')
 
-      // Get the site URL from environment variable, falling back to window.location.origin
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-      logger.info('Using site URL for redirect:', siteUrl)
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${siteUrl}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
       if (error) {
         throw error
-      }
-
-      if (!data) {
-        throw new Error('No data returned from signInWithOAuth')
       }
 
       logger.info('Google sign-in initiated successfully')

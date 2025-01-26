@@ -13,66 +13,34 @@ export default function AuthCallback() {
     const handleCallback = async () => {
       try {
         logger.info('Starting auth callback handling')
+
+        // Get the session
+        const { data: { session }, error } = await supabase.auth.getSession()
         
-        // Get code from URL parameters
-        const { code, error: urlError } = router.query
-        logger.info('Auth callback params:', { code, urlError })
-
-        // If there's an error in the URL, throw it
-        if (urlError) {
-          throw new Error(urlError as string)
-        }
-
-        if (!code) {
-          throw new Error('No code found in URL')
-        }
-
-        // Exchange the code for a session
-        logger.info('Exchanging code for session')
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code as string)
-        if (exchangeError) {
-          throw exchangeError
-        }
-
-        // Get the session after exchanging the code
-        logger.info('Getting session')
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        if (sessionError) {
-          throw sessionError
+        if (error) {
+          throw error
         }
 
         if (!session) {
-          throw new Error('No session found after code exchange')
+          throw new Error('No session found')
         }
 
         logger.info('Session obtained successfully')
 
-        // Get the site URL from environment variable or window location
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-        logger.info('Using site URL:', siteUrl)
-
-        // Always redirect to home after successful authentication
-        const redirectUrl = `${siteUrl}/`
-        logger.info('Auth callback successful, redirecting to:', redirectUrl)
-        
-        // Use router.push for client-side navigation
-        router.push(redirectUrl)
+        // Redirect to home after successful authentication
+        router.push('/')
       } catch (error) {
         logger.error('Error in auth callback:', error)
         const message = error instanceof Error ? error.message : 'Authentication failed'
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-        
-        // Use router.push for client-side navigation
         router.push(`/auth/login?error=${encodeURIComponent(message)}`)
       }
     }
 
-    // Only run the callback handler if we have a code in the URL
-    if (router.isReady && router.query.code) {
+    // Only run the callback handler if we're ready
+    if (router.isReady) {
       handleCallback()
     }
-  }, [router.isReady, router.query, supabase, router])
+  }, [router.isReady, supabase, router])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
