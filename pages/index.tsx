@@ -15,13 +15,13 @@ import { useRouter } from 'next/router';
 
 export default function Home() {
   const router = useRouter();
-  const [apiKey, setApiKey] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
     // Check authentication status
@@ -66,7 +66,6 @@ export default function Home() {
   // Clear sensitive data when component unmounts or window closes
   useEffect(() => {
     const handleBeforeUnload = () => {
-      setApiKey('');
       setFile(null);
       setResult(null);
     };
@@ -75,7 +74,6 @@ export default function Home() {
     
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      setApiKey('');
       setFile(null);
       setResult(null);
     };
@@ -125,7 +123,7 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (!apiKey || !file) return;
 
     try {
       setLoading(true);
