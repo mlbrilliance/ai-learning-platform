@@ -8,15 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-export const supabase = createPagesBrowserClient({
+export const supabase = createPagesBrowserClient<Database>({
   supabaseUrl,
-  supabaseKey: supabaseAnonKey,
-  options: {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    }
-  }
+  supabaseKey: supabaseAnonKey
 })
