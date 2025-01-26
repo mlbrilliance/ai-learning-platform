@@ -1,137 +1,133 @@
-# AI Learning Platform - Document Processing Pipeline
+# AI Learning Platform
 
-A modern web application for processing PDF documents using state-of-the-art AI technology. This platform allows users to upload PDF documents and transform them into vector embeddings using Hugging Face's models, making them ready for advanced natural language processing tasks.
+A modern web application for processing and analyzing PDF documents using advanced AI capabilities. Built with Next.js, Supabase, and Hugging Face's AI models.
 
 ## Features
 
-- **Modern UI/UX**
-  - Beautiful, responsive design using Tailwind CSS
-  - Dark mode support
-  - Drag-and-drop file upload
-  - Interactive components with Shadcn UI
-  - Real-time visual feedback
-
-- **Security**
-  - Secure API key handling
-  - Keys are never stored, only used for the current session
-  - Automatic cleanup on page close/refresh
-
-- **PDF Processing**
-  - Support for PDF document uploads
-  - Automatic text extraction
-  - Vector embeddings generation
-  - Chunk-based processing for large documents
-  - Metadata preservation
+- 🔐 Secure Authentication with Google OAuth
+- 📄 PDF Document Processing
+- 🤖 AI-Powered Text Analysis
+- 🎨 Modern UI with Dark Mode Support
+- 📱 Responsive Design
+- 🔄 Real-time Processing Status
+- 🌐 Cloud-based Storage
 
 ## Tech Stack
 
-- **Frontend**
-  - Next.js 14
-  - React 18
-  - Tailwind CSS
-  - Shadcn UI Components
-  - Lucide Icons
-
-- **Backend**
-  - Node.js
-  - LangChain
-  - Hugging Face Inference API
-  - PDF Parse
-
-- **Development**
-  - TypeScript
-  - ESLint
-  - Jest for testing
-  - PostCSS
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Next.js API Routes
+- **Authentication**: Supabase Auth
+- **AI/ML**: Hugging Face Models
+- **Storage**: Supabase Storage
+- **Styling**: Tailwind CSS, shadcn/ui
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- pnpm package manager
-- A Hugging Face API key
+- Node.js 16.x or later
+- npm or yarn
+- A Supabase account
+- A Hugging Face account and API key
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=your_site_url
+```
 
 ### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone [repository-url]
-   cd ai_learning_platform
-   ```
+```bash
+git clone https://github.com/mlbrilliance/ai-learning-platform.git
+cd ai-learning-platform
+```
 
 2. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-3. Create a `.env` file in the root directory:
-   ```env
-   NEXT_PUBLIC_HUGGINGFACE_API_KEY=your-api-key
-   ```
-
-4. Start the development server:
-   ```bash
-   pnpm dev
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-### Usage
-
-1. Visit the application in your web browser
-2. Enter your Hugging Face API key
-3. Upload a PDF document by either:
-   - Dragging and dropping it onto the upload area
-   - Clicking the upload area to browse for files
-4. Click "Process Document" to start the transformation
-5. View the results in the modal dialog, showing:
-   - Text chunks extracted from the PDF
-   - Vector embeddings for each chunk
-   - Metadata including page numbers
-
-## Testing
-
-Run the test suite:
 ```bash
-pnpm test
+npm install
+# or
+yarn install
 ```
 
-Generate test PDFs:
+3. Run the development server:
 ```bash
-node scripts/generateTestPDF.js
+npm run dev
+# or
+yarn dev
 ```
 
-## Project Structure
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```
-ai_learning_platform/
-├── components/         # React components
-│   └── ui/            # Shadcn UI components
-├── lib/               # Core libraries
-│   └── rag/           # RAG implementation
-├── pages/             # Next.js pages
-├── public/            # Static assets
-├── scripts/           # Utility scripts
-├── styles/           # Global styles
-└── tests/            # Test files
-```
+## Features in Detail
+
+### Authentication
+- Google OAuth integration
+- Protected routes with middleware
+- Automatic session management
+- Secure PKCE flow implementation
+
+### Document Processing
+- PDF file upload and processing
+- Text extraction and analysis
+- Document chunking for better analysis
+- Real-time processing status updates
+
+### User Interface
+- Modern, responsive design
+- Dark mode support
+- Loading states and error handling
+- Beautiful animations and transitions
+- Professional footer with developer information
+
+## Deployment
+
+The application is deployed on Vercel. For deployment, ensure the following:
+
+1. Connect your GitHub repository to Vercel
+2. Set up the environment variables in Vercel
+3. Configure the Supabase project settings:
+   - Add the production URL to the allowed redirect URLs
+   - Update the site URL in authentication settings
+
+## Recent Updates
+
+### Authentication Improvements
+- Simplified OAuth flow implementation
+- Enhanced error handling
+- Better session management
+- Improved redirect handling
+
+### UI Enhancements
+- Added modern footer with developer information
+- Improved responsive design
+- Enhanced loading states
+- Better error message displays
+
+### Security Updates
+- Implemented secure session handling
+- Added protected route middleware
+- Enhanced error boundary implementation
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the ISC License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## Developer
 
-- [Shadcn UI](https://ui.shadcn.com/) for the beautiful components
-- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
-- [LangChain](https://js.langchain.com/) for document processing
-- [Hugging Face](https://huggingface.co/) for the AI models
+- **Name**: Nick Sudh
+- **Website**: [mlbrilliance.com](https://mlbrilliance.com)
+- **GitHub**: [@mlbrilliance](https://github.com/mlbrilliance)
+
+## Support
+
+For support, please open an issue in the GitHub repository or contact the developer through the provided links.
