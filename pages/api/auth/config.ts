@@ -14,10 +14,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw error
     }
 
+    // Get the site URL from environment variable or request headers
+    const protocol = req.headers['x-forwarded-proto'] || 'http'
+    const host = req.headers['x-forwarded-host'] || req.headers.host
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+
     return res.status(200).json({
       session,
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      redirectUrl: `${req.headers.origin}/auth/callback`,
+      redirectUrl: `${siteUrl}/auth/callback`,
     })
   } catch (error) {
     console.error('Auth config error:', error)

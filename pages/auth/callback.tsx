@@ -31,13 +31,18 @@ export default function AuthCallback() {
         }
 
         // Get the return URL from query params or default to home
-        const returnTo = searchParams.get('returnTo') || '/'
+        const returnTo = searchParams.get('redirectedFrom') || '/'
         
-        logger.info('Auth callback successful, redirecting to:', returnTo)
-        router.push(returnTo)
+        // Get the site URL from environment variable or window location
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+        const redirectUrl = returnTo.startsWith('http') ? returnTo : `${siteUrl}${returnTo}`
+        
+        logger.info('Auth callback successful, redirecting to:', redirectUrl)
+        window.location.href = redirectUrl
       } catch (error) {
         logger.error('Error in auth callback:', error)
-        router.push('/auth/login?error=Authentication failed')
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+        window.location.href = `${siteUrl}/auth/login?error=Authentication failed`
       }
     }
 
