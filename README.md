@@ -1,46 +1,35 @@
-# AI Learning Platform
+# Nick's AI Agents Powered Learning Platform
 
-A modern web application for processing and analyzing PDF documents using advanced AI capabilities. Built with Next.js, Supabase, and Hugging Face's AI models.
+A modern, AI-powered learning platform that leverages advanced document processing and intelligent analysis to enhance the learning experience.
 
 ## Features
 
-- 🔐 Secure Authentication with Google OAuth
-- 📄 PDF Document Processing
-- 🤖 AI-Powered Text Analysis
-- 🎨 Modern UI with Dark Mode Support
-- 📱 Responsive Design
-- 🔄 Real-time Processing Status
-- 🌐 Cloud-based Storage
+- 🤖 **AI-Powered Document Analysis**: Advanced processing of documents using state-of-the-art AI models
+- 📚 **Smart Learning**: Intelligent content organization and personalized insights
+- 🔍 **RAG Integration**: Utilizes Retrieval-Augmented Generation for enhanced document understanding
+- 🔐 **Secure Authentication**: Google OAuth integration with PKCE flow for enhanced security
+- 💫 **Modern UI**: Beautiful, responsive interface with gradient effects and smooth animations
+- 🎯 **Intuitive Experience**: User-friendly design focused on learning efficiency
+
+## Recent Updates
+
+- Enhanced login page with modern design and improved UI components
+- Added feature cards showcasing platform capabilities
+- Improved responsive design for better mobile experience
+- Updated authentication flow with better error handling
+- Added gradient backgrounds and modern styling
+- Implemented new footer design with developer information
 
 ## Tech Stack
 
-- **Frontend**: Next.js, React, TailwindCSS
-- **Backend**: Next.js API Routes
+- **Frontend**: Next.js 14, React, Tailwind CSS
 - **Authentication**: Supabase Auth
-- **AI/ML**: Hugging Face Models
-- **Storage**: Supabase Storage
-- **Styling**: Tailwind CSS, shadcn/ui
+- **AI/ML**: Hugging Face Transformers
+- **Database**: Supabase PostgreSQL
+- **Styling**: Tailwind CSS, Lucide Icons
+- **Development**: TypeScript, ESLint
 
 ## Getting Started
-
-### Prerequisites
-
-- Node.js 16.x or later
-- npm or yarn
-- A Supabase account
-- A Hugging Face account and API key
-
-### Environment Variables
-
-Create a `.env.local` file in the root directory with the following variables:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_SITE_URL=your_site_url
-```
-
-### Installation
 
 1. Clone the repository:
 ```bash
@@ -50,84 +39,52 @@ cd ai-learning-platform
 
 2. Install dependencies:
 ```bash
-npm install
-# or
-yarn install
+pnpm install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+Create a `.env.local` file with the following:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=your_site_url
+```
+
+4. Run the development server:
 ```bash
-npm run dev
-# or
-yarn dev
+pnpm dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Features in Detail
-
-### Authentication
-- Google OAuth integration
-- Protected routes with middleware
-- Automatic session management
-- Secure PKCE flow implementation
-
-### Document Processing
-- PDF file upload and processing
-- Text extraction and analysis
-- Document chunking for better analysis
-- Real-time processing status updates
-
-### User Interface
-- Modern, responsive design
-- Dark mode support
-- Loading states and error handling
-- Beautiful animations and transitions
-- Professional footer with developer information
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Deployment
 
-The application is deployed on Vercel. For deployment, ensure the following:
+The platform is deployed on Vercel with automatic deployments from the main branch.
 
-1. Connect your GitHub repository to Vercel
-2. Set up the environment variables in Vercel
-3. Configure the Supabase project settings:
-   - Add the production URL to the allowed redirect URLs
-   - Update the site URL in authentication settings
+### Deploy on Vercel
 
-## Recent Updates
-
-### Authentication Improvements
-- Simplified OAuth flow implementation
-- Enhanced error handling
-- Better session management
-- Improved redirect handling
-
-### UI Enhancements
-- Added modern footer with developer information
-- Improved responsive design
-- Enhanced loading states
-- Better error message displays
-
-### Security Updates
-- Implemented secure session handling
-- Added protected route middleware
-- Enhanced error boundary implementation
+1. Fork this repository
+2. Create a new project on Vercel
+3. Connect your forked repository
+4. Set up the required environment variables
+5. Deploy!
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Developer
-
-- **Name**: Nick Sudh
-- **Website**: [mlbrilliance.com](https://mlbrilliance.com)
-- **GitHub**: [@mlbrilliance](https://github.com/mlbrilliance)
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
 ## Support
 
-For support, please open an issue in the GitHub repository or contact the developer through the provided links.
+For support, please open an issue in the GitHub repository or contact the developer:
+
+- **Developer**: Nick Sudh
+- **Website**: [nicksudh.com](https://nicksudh.com)
+- **GitHub**: [@mlbrilliance](https://github.com/mlbrilliance)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
