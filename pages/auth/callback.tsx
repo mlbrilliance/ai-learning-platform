@@ -13,30 +13,38 @@ export default function AuthCallback() {
     const handleCallback = async () => {
       try {
         logger.info('Starting auth callback handling')
-        const { searchParams } = new URL(window.location.href)
-        const code = searchParams.get('code')
+        
+        // Get code from URL parameters
+        const { code, redirectedFrom } = router.query
+        logger.info('Auth callback params:', { code, redirectedFrom })
 
         if (code) {
-          await supabase.auth.exchangeCodeForSession(code)
+          const { error } = await supabase.auth.exchangeCodeForSession(code as string)
+          if (error) {
+            throw error
+          }
         }
 
-        const { data: { session }, error } = await supabase.auth.getSession()
+        // Get the session after exchanging the code
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        if (error) {
-          throw error
+        if (sessionError) {
+          throw sessionError
         }
 
         if (!session) {
           throw new Error('No session found')
         }
 
-        // Get the return URL from query params or default to home
-        const returnTo = searchParams.get('redirectedFrom') || '/'
-        
         // Get the site URL from environment variable or window location
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-        const redirectUrl = returnTo.startsWith('http') ? returnTo : `${siteUrl}${returnTo}`
+        logger.info('Using site URL:', siteUrl)
         
+        // Redirect to the original path or home
+        const redirectUrl = redirectedFrom ? 
+          `${siteUrl}${redirectedFrom}` : 
+          `${siteUrl}/`
+
         logger.info('Auth callback successful, redirecting to:', redirectUrl)
         window.location.href = redirectUrl
       } catch (error) {
@@ -46,8 +54,11 @@ export default function AuthCallback() {
       }
     }
 
-    handleCallback()
-  }, [router, supabase])
+    // Only run the callback handler if we have a code in the URL
+    if (router.isReady && router.query.code) {
+      handleCallback()
+    }
+  }, [router.isReady, router.query, supabase])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
