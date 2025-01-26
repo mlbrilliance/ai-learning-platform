@@ -60,7 +60,7 @@ module.exports = require("path");
 var __webpack_require__ = require("../webpack-runtime.js");
 __webpack_require__.C(exports);
 var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-var __webpack_exports__ = __webpack_require__.X(0, ["vendor-chunks/next@14.2.23_@babel+core@7.26.7_@playwright+test@1.50.0_babel-plugin-macros@3.1.0_react-dom@1_piu55uropyyhlge2ovcrcqv6da","vendor-chunks/@swc+helpers@0.5.5"], () => (__webpack_exec__("./node_modules/.pnpm/next@14.2.23_@babel+core@7.26.7_@playwright+test@1.50.0_babel-plugin-macros@3.1.0_react-dom@1_piu55uropyyhlge2ovcrcqv6da/node_modules/next/dist/pages/_document.js")));
+var __webpack_exports__ = __webpack_require__.X(0, ["vendor-chunks/next@14.1.0_@babel+core@7.26.7_babel-plugin-macros@3.1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1","vendor-chunks/@swc+helpers@0.5.2"], () => (__webpack_exec__("./node_modules/.pnpm/next@14.1.0_@babel+core@7.26.7_babel-plugin-macros@3.1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/pages/_document.js")));
 module.exports = __webpack_exports__;
 
 })();

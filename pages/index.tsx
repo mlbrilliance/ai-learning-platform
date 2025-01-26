@@ -12,6 +12,7 @@ import {
 } from '../components/ui/dialog';
 import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -164,10 +165,12 @@ export default function Home() {
       <div className="max-w-4xl mx-auto mb-8 flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
         <div className="flex items-center gap-4">
           {user?.user_metadata?.avatar_url && (
-            <img
+            <Image
               src={user.user_metadata.avatar_url}
               alt="Profile"
-              className="w-10 h-10 rounded-full"
+              width={40}
+              height={40}
+              className="rounded-full"
             />
           )}
           <div>
