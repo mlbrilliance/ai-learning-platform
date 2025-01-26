@@ -2,12 +2,13 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { supabase } from '../../lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { logger } from '../../lib/logger'
 
 export default function Login() {
   const router = useRouter()
   const { error: errorMessage } = router.query
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     if (errorMessage) {
@@ -26,40 +27,44 @@ export default function Login() {
             access_type: 'offline',
             prompt: 'consent',
           },
-        }
+        },
       })
 
-      if (error) throw error
-      
-      logger.debug('Sign-in initiated', {
-        provider: 'google',
-        redirectUrl: `${window.location.origin}/auth/callback`,
-      })
+      if (error) {
+        throw error
+      }
 
+      if (!data) {
+        throw new Error('No data returned from signInWithOAuth')
+      }
+
+      logger.info('Google sign-in initiated successfully')
     } catch (error) {
-      logger.error('Failed to initiate Google sign-in', error)
+      logger.error('Error during Google sign-in:', error)
+      // Stay on the login page but show the error
+      const message = error instanceof Error ? error.message : 'Failed to sign in'
+      router.push(`/auth/login?error=${encodeURIComponent(message)}`)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-600 dark:text-gray-300">Sign in to continue</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
+        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+          Welcome Back
+        </h1>
 
         {errorMessage && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
-            <p>{decodeURIComponent(errorMessage as string)}</p>
+          <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/50 dark:text-red-200">
+            {errorMessage}
           </div>
         )}
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          className="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-2.5 text-gray-900 shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

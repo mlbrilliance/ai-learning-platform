@@ -2,16 +2,23 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { supabase } from '../../lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { logger } from '../../lib/logger'
 
 export default function AuthCallback() {
   const router = useRouter()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
         logger.info('Starting auth callback handling')
+        const { searchParams } = new URL(window.location.href)
+        const code = searchParams.get('code')
+
+        if (code) {
+          await supabase.auth.exchangeCodeForSession(code)
+        }
 
         const { data: { session }, error } = await supabase.auth.getSession()
         
@@ -20,41 +27,28 @@ export default function AuthCallback() {
         }
 
         if (!session) {
-          // If no session, try to exchange the code
-          const code = router.query.code as string
-          if (!code) {
-            throw new Error('No code parameter found')
-          }
-
-          logger.info('Exchanging code for session')
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          
-          if (exchangeError) {
-            throw exchangeError
-          }
+          throw new Error('No session found')
         }
 
-        logger.info('Successfully authenticated, redirecting to home')
-        router.push('/')
-
+        // Get the return URL from query params or default to home
+        const returnTo = searchParams.get('returnTo') || '/'
+        
+        logger.info('Auth callback successful, redirecting to:', returnTo)
+        router.push(returnTo)
       } catch (error) {
-        logger.error('Auth callback error', error)
-        router.push('/auth/login?error=' + encodeURIComponent((error as Error).message))
+        logger.error('Error in auth callback:', error)
+        router.push('/auth/login?error=Authentication failed')
       }
     }
 
-    if (router.isReady) {
-      handleCallback()
-    }
-  }, [router, router.isReady])
+    handleCallback()
+  }, [router, supabase])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-        <p className="mt-4 text-gray-600 dark:text-gray-300">
-          Completing sign in...
-        </p>
+        <h2 className="mb-2 text-2xl font-semibold">Completing sign in...</h2>
+        <p className="text-gray-600">Please wait while we authenticate you.</p>
       </div>
     </div>
   )
