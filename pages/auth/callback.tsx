@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { logger } from '../../lib/logger'
+import Footer from '../../components/Footer'
 
 export default function AuthCallback() {
   const router = useRouter()
@@ -43,11 +44,14 @@ export default function AuthCallback() {
   }, [router.isReady, supabase, router])
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h2 className="mb-2 text-2xl font-semibold">Completing sign in...</h2>
-        <p className="text-gray-600">Please wait while we authenticate you.</p>
+    <div className="relative min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 text-2xl font-semibold">Completing sign in...</h2>
+          <p className="text-gray-600">Please wait while we authenticate you.</p>
+        </div>
       </div>
+      <Footer />
     </div>
   )
 }
