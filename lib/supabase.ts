@@ -11,12 +11,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createPagesBrowserClient({
   supabaseUrl,
   supabaseKey: supabaseAnonKey,
-  cookieOptions: {
-    name: 'sb-auth-token',
-    maxAge: 60 * 60 * 24 * 7, // 1 week
-    domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
-    sameSite: 'lax',
-    path: '/',
-    secure: process.env.NODE_ENV === 'production'
+  options: {
+    cookies: {
+      name: 'sb-auth-token',
+      domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
+      sameSite: 'lax',
+      path: '/',
+      secure: process.env.NODE_ENV === 'production'
+    }
   }
 })
