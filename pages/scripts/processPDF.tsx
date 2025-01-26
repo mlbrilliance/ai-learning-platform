@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/button'
+import Image from 'next/image';
 
 export default function ProcessPDF() {
   const router = useRouter()
@@ -94,10 +95,12 @@ export default function ProcessPDF() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {user?.user_metadata?.avatar_url && (
-              <img
+              <Image
                 src={user.user_metadata.avatar_url}
                 alt="Profile"
-                className="w-10 h-10 rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full"
               />
             )}
             <div>

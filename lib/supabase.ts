@@ -13,7 +13,7 @@ export const supabase = createPagesBrowserClient({
   supabaseKey: supabaseAnonKey,
   cookieOptions: {
     name: 'sb-auth-token',
-    lifetime: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7, // 1 week
     domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
     sameSite: 'lax',
     path: '/',
