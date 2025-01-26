@@ -12,12 +12,11 @@ export const supabase = createPagesBrowserClient({
   supabaseUrl,
   supabaseKey: supabaseAnonKey,
   options: {
-    cookies: {
-      name: 'sb-auth-token',
-      domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
-      sameSite: 'lax',
-      path: '/',
-      secure: process.env.NODE_ENV === 'production'
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce'
     }
   }
 })
