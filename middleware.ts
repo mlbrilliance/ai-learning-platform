@@ -21,43 +21,21 @@ export async function middleware(req: NextRequest) {
       return res
     }
 
-    // For API routes, proceed
-    if (path.startsWith('/api/')) {
-      return res
-    }
+    // Check auth status
+    const { data: { session } } = await supabase.auth.getSession()
 
-    // Refresh session if available
-    const { data: { session }, error } = await supabase.auth.getSession()
-
-    // For public routes
-    const isPublicRoute = PUBLIC_ROUTES.includes(path)
-    if (isPublicRoute) {
-      // If has session and on login page, redirect to home
-      if (session && path === '/auth/login') {
-        return NextResponse.redirect(new URL('/', req.url))
-      }
-      return res
-    }
-
-    // Protected routes
-    if (!session) {
+    // If no session and not on a public route, redirect to login
+    if (!session && !PUBLIC_ROUTES.includes(path)) {
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = '/auth/login'
       redirectUrl.searchParams.set('redirectedFrom', path)
       return NextResponse.redirect(redirectUrl)
     }
 
+    // User is authenticated or accessing a public route, proceed
     return res
   } catch (error) {
-    logger.error('Middleware error', error)
-    // On error, allow access to public routes, redirect to login for private routes
-    const isPublicRoute = PUBLIC_ROUTES.includes(path)
-    if (!isPublicRoute) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
-      redirectUrl.searchParams.set('error', 'Session error')
-      return NextResponse.redirect(redirectUrl)
-    }
+    logger.error('Middleware error:', error)
     return res
   }
 }
