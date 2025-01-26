@@ -11,6 +11,20 @@ export default function Login() {
   const supabase = createClientComponentClient()
 
   useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        // If we have a session, redirect to home
+        router.push('/')
+      }
+    }
+
+    if (!errorMessage) {
+      checkSession()
+    }
+  }, [errorMessage, router, supabase])
+
+  useEffect(() => {
     if (errorMessage) {
       logger.error('Login error from redirect', { error: errorMessage })
     }
@@ -24,13 +38,10 @@ export default function Login() {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
       logger.info('Using site URL for redirect:', siteUrl)
 
-      // Get the current path to redirect back to after auth
-      const currentPath = router.asPath === '/auth/login' ? '/' : router.asPath
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${siteUrl}/auth/callback?redirectedFrom=${encodeURIComponent(currentPath)}`,
+          redirectTo: `${siteUrl}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -49,7 +60,6 @@ export default function Login() {
       logger.info('Google sign-in initiated successfully')
     } catch (error) {
       logger.error('Error during Google sign-in:', error)
-      // Stay on the login page but show the error
       const message = error instanceof Error ? error.message : 'Failed to sign in'
       router.push(`/auth/login?error=${encodeURIComponent(message)}`)
     }
@@ -64,7 +74,7 @@ export default function Login() {
 
         {errorMessage && (
           <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/50 dark:text-red-200">
-            {errorMessage}
+            {decodeURIComponent(errorMessage as string)}
           </div>
         )}
 

@@ -15,17 +15,27 @@ export default function AuthCallback() {
         logger.info('Starting auth callback handling')
         
         // Get code from URL parameters
-        const { code, redirectedFrom } = router.query
-        logger.info('Auth callback params:', { code, redirectedFrom })
+        const { code, error: urlError } = router.query
+        logger.info('Auth callback params:', { code, urlError })
 
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code as string)
-          if (error) {
-            throw error
-          }
+        // If there's an error in the URL, throw it
+        if (urlError) {
+          throw new Error(urlError as string)
+        }
+
+        if (!code) {
+          throw new Error('No code found in URL')
+        }
+
+        // Exchange the code for a session
+        logger.info('Exchanging code for session')
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code as string)
+        if (exchangeError) {
+          throw exchangeError
         }
 
         // Get the session after exchanging the code
+        logger.info('Getting session')
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
         if (sessionError) {
@@ -33,24 +43,28 @@ export default function AuthCallback() {
         }
 
         if (!session) {
-          throw new Error('No session found')
+          throw new Error('No session found after code exchange')
         }
+
+        logger.info('Session obtained successfully')
 
         // Get the site URL from environment variable or window location
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
         logger.info('Using site URL:', siteUrl)
-        
-        // Redirect to the original path or home
-        const redirectUrl = redirectedFrom ? 
-          `${siteUrl}${redirectedFrom}` : 
-          `${siteUrl}/`
 
+        // Always redirect to home after successful authentication
+        const redirectUrl = `${siteUrl}/`
         logger.info('Auth callback successful, redirecting to:', redirectUrl)
-        window.location.href = redirectUrl
+        
+        // Use router.push for client-side navigation
+        router.push(redirectUrl)
       } catch (error) {
         logger.error('Error in auth callback:', error)
+        const message = error instanceof Error ? error.message : 'Authentication failed'
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-        window.location.href = `${siteUrl}/auth/login?error=Authentication failed`
+        
+        // Use router.push for client-side navigation
+        router.push(`/auth/login?error=${encodeURIComponent(message)}`)
       }
     }
 
@@ -58,7 +72,7 @@ export default function AuthCallback() {
     if (router.isReady && router.query.code) {
       handleCallback()
     }
-  }, [router.isReady, router.query, supabase])
+  }, [router.isReady, router.query, supabase, router])
 
   return (
     <div className="flex min-h-screen items-center justify-center">
